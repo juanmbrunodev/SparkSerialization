@@ -3,6 +3,7 @@ package com.jmb;
 import com.jmb.mapper.DamageEstMapper;
 import com.jmb.model.DamageEstimator;
 import com.jmb.model.DamageEstimatorSerializable;
+import org.apache.spark.SparkConf;
 import org.apache.spark.sql.*;
 import org.apache.spark.sql.catalyst.encoders.RowEncoder;
 import org.slf4j.Logger;
@@ -25,9 +26,12 @@ public class Serialization {
 
     private void init() throws Exception {
 
+        SparkConf appConfig = new SparkConf().set("spark.testing.memory", "900000000");
+
         //Create the Spark Session
         SparkSession session = SparkSession.builder()
                 .appName("SparkSerialization")
+                .config(appConfig)
                 .master("local").getOrCreate();
 
         //Load Earhquakes CSV file into a DataFrame
@@ -38,8 +42,6 @@ public class Serialization {
         //Print loaded DataFrame of Earthquakes information.
         df.show();
 
-        /** Uncomment to see Stack Trace and Exception
-
         //Apply Damage Estimation Mapper - Transform into a new DataFrame
         Dataset<Row> damagePerCityDf = df.map(new DamageEstMapper(new DamageEstimator()),
                 RowEncoder.apply(DamageEstMapper.getSchema()));
@@ -47,7 +49,8 @@ public class Serialization {
         //Trigger transformation with action
         damagePerCityDf.count();
 
-         **/
+
+        /**
 
         //Pass a serializable object to the mapper to have the code work
 
@@ -60,6 +63,7 @@ public class Serialization {
 
         //Print results
         damagePerCityDf.show();
+         **/
     }
 
 }
